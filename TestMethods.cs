@@ -111,6 +111,7 @@ namespace TestProject1
             List<int> sourceList = sourceDict.Keys.ToList();
 
             sourceList = BubbleSort(sourceList);
+            sourceList = new List<int>(InvertArray(sourceList.ToArray()));
 
             Dictionary<int, EValueType> result = new Dictionary<int, EValueType>();
 
@@ -143,7 +144,53 @@ namespace TestProject1
 
         internal static Queue<Ticket>[] ClassifyTickets(List<Ticket> sourceList)
         {
-            Queue<Ticket>[] result = null;
+
+            List<int> listaTurnos = new List<int>();
+
+            for (int i = 0; i < sourceList.Count; i++)
+            {
+                listaTurnos.Add(sourceList[i].Turn);
+            }
+
+            listaTurnos = BubbleSort(listaTurnos);
+
+            List<Ticket> listaSortedTickets = new List<Ticket>();
+
+
+            for (int i = 0; i < listaTurnos.Count; i++)
+            {
+                Ticket ticket = sourceList.Find(ticket => ticket.Turn == listaTurnos[i]);
+                listaSortedTickets.Add(ticket);
+            }
+           
+            Queue<Ticket>[] result = new Queue<Ticket>[3]
+                { 
+                    new Queue<Ticket>(),                
+                    new Queue<Ticket>(),                
+                    new Queue<Ticket>()                
+                };
+
+            for (int i = 0; i < listaSortedTickets.Count; i++)
+            {
+                switch (listaSortedTickets[i].RequestType)
+                {
+                    case Ticket.ERequestType.Payment:
+                        result[0].Enqueue(listaSortedTickets[i]);
+                        break;
+
+                    case Ticket.ERequestType.Subscription:
+                        result[1].Enqueue(listaSortedTickets[i]);
+                        break;
+
+                    case Ticket.ERequestType.Cancellation:
+                        result[2].Enqueue(listaSortedTickets[i]);
+                        break;
+
+                }
+            }
+
+
+
 
             return result;
         }
@@ -151,6 +198,14 @@ namespace TestProject1
         internal static bool AddNewTicket(Queue<Ticket> targetQueue, Ticket ticket)
         {
             bool result = false;
+
+            Ticket sampleTicket = targetQueue.Peek();
+
+            if (sampleTicket.RequestType == ticket.RequestType)
+            {
+                targetQueue.Enqueue(ticket);
+                result = true;
+            }
 
             return result;
         }        
